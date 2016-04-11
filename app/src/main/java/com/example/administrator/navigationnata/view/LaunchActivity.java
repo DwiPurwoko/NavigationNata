@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 
 import com.example.administrator.navigationnata.MainActivity;
@@ -17,31 +16,49 @@ import com.example.administrator.navigationnata.MainActivity;
 public class LaunchActivity extends Activity {
     public static final String PREF_NAME = "pref" ;
 
+    private static int splashInterval = 1000;
+
     Context context;
     SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        sharedPreferences = getSharedPreferences(PREF_NAME, 0);
-        boolean state =  sharedPreferences.getBoolean("isLogin", false);
+        new Handler().postDelayed(new Runnable() {
 
-        if(state){
-            // open main activity
-            Intent intent = new Intent(LaunchActivity.this, MainActivity.class);
-            startActivity(intent);
-        }else {
+            @Override
+            public void run() {
+                sharedPreferences = getSharedPreferences(PREF_NAME, 0);
+                boolean state =  sharedPreferences.getBoolean("isLogin", false);
+                // TODO Auto-generated method stub
+                if(state){
+                    // open main activity
+                    Intent intent = new Intent(LaunchActivity.this, MainActivity.class);
+                    startActivity(intent);
+                }else {
+                    Intent intent = new Intent(LaunchActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                }
+                //jeda selesai Splashscreen
+                this.finish();
+            }
+
+            private void finish() {
+                // TODO Auto-generated method stub
+
+            }
+        }, splashInterval);
+
+
+    }
+   /* @Override
+        public void onBackPressed()
+        {
+            // code here to show dialog
+            super.onBackPressed();  // optional depending on your needs
             Intent intent = new Intent(LaunchActivity.this, LoginActivity.class);
             startActivity(intent);
-        }
-    }
-    @Override
-    public void onBackPressed()
-    {
-        // code here to show dialog
-        super.onBackPressed();  // optional depending on your needs
-        Intent intent = new Intent(LaunchActivity.this, LoginActivity.class);
-        startActivity(intent);
-    }
+    }*/
 }

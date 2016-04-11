@@ -3,6 +3,7 @@ package com.example.administrator.navigationnata;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -47,6 +48,8 @@ public class MainActivity extends AppCompatActivity
     public static final String PREF_NAME = "pref" ;
 
     public static final String KEY_EMAIL = "email" ;
+    public static final String KEY_Name = "name" ;
+    public static final String KEY_IMGPROFIL = "imgProfil" ;
 
     private TextView nameProfile;
     private TextView emailProfile;
@@ -55,8 +58,6 @@ public class MainActivity extends AppCompatActivity
     private GridView list_property;
     private List<Product> listProperty = new ArrayList<Product>();
     private ListPropertyAdapter adapter;
-
-    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,10 +93,8 @@ public class MainActivity extends AppCompatActivity
         emailProfile = (TextView)header.findViewById(R.id.emailProfile);
         imgProfile = (ImageView)header.findViewById(R.id.imgProfile);
 
-       // nameProfile.setText(personName);
-        Intent intent = getIntent();
-        emailProfile.setText(intent.getStringExtra(LoginActivity.KEY_EMAIL));
-     //   imgProfile.setImageBitmap(personImage);
+        nameProfile.setText(KEY_Name);
+        emailProfile.setText(KEY_EMAIL);
 
         requestProperty();
     }
@@ -123,6 +122,7 @@ public class MainActivity extends AppCompatActivity
         BaseApplication.getInstance().addToRequestQueue(request, "product");
     }
 
+    //generate property ke model
     private void generateListProduct(JSONArray response){
         for (int i = 0; i < response.length();i++){
             try {
@@ -151,6 +151,9 @@ public class MainActivity extends AppCompatActivity
                                 getSharedPreferences(PREF_NAME, 0);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putBoolean("isLogin", false);
+                        editor.putString(KEY_Name,"");
+                        editor.putString(KEY_EMAIL,"");
+
                         editor.commit();
 
                         Intent intent = new Intent(MainActivity.this, LaunchActivity.class);

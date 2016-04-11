@@ -32,6 +32,9 @@ import com.example.administrator.navigationnata.R;
 import com.example.administrator.navigationnata.config.BaseApplication;
 import com.example.administrator.navigationnata.config.WebService;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,37 +46,27 @@ public class LoginActivity extends AppCompatActivity {
 
     public static final String KEY_PASSWORD="password";
     public static final String KEY_EMAIL="email";
-
-    Context context;
-    SharedPreferences sharedPreferences;
+    public static final String KEY_NAME="name";
+    public static final String KEY_IMGPROFIL="imgProfil";
 
     private EditText txtEmail;
     private EditText txtPassword;
-    private Button btnLogin,btnLinkToRegister;
+    private Button btnLogin;
 
-    private TextView btnLinkToForgotPassword;
+    private TextView btnLinkToForgotPassword,btnLinkToRegister;
 
     private String email;
     private String password;
-
-    private Toolbar toolbar;
-
-    private boolean loggedIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-     //   getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-       // getSupportActionBar().setDisplayShowHomeEnabled(true);
-     //   getSupportActionBar().setTitle("Login");
 
         txtEmail = (EditText) findViewById(R.id.txtEmail);
         txtPassword = (EditText) findViewById(R.id.txtPassword);
         btnLogin = (Button) findViewById(R.id.btnLogin);
-        btnLinkToRegister = (Button) findViewById(R.id.btnLinkToRegister);
+        btnLinkToRegister = (TextView) findViewById(R.id.btnLinkToRegister);
         btnLinkToForgotPassword = (TextView) findViewById(R.id.btnLinkToForgotPassword);
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +80,8 @@ public class LoginActivity extends AppCompatActivity {
                     // login user
                     userLogin();
                 } else {
+
+
                     // Prompt user to enter credentials
                     Toast.makeText(getApplicationContext(),
                             "Invalid username or password", Toast.LENGTH_LONG)
@@ -98,39 +93,22 @@ public class LoginActivity extends AppCompatActivity {
         btnLinkToRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(),
+                Intent intent = new Intent(LoginActivity.this,
                         RegisterActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
 
         btnLinkToForgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(),
+                Intent intent = new Intent(LoginActivity.this,
                         ForgotPasswordActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
 
     }
-
-   /* @Override
-    protected void onResume() {
-        super.onResume();
-        SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME,0);
-        loggedIn = sharedPreferences.getBoolean("isLogin", false);
-
-        if(loggedIn){
-            Log.d(PREF_NAME,"isLogin");
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.putExtra(KEY_EMAIL, email);
-            startActivity(intent);
-        }
-    }*/
-
 
     private void userLogin (){
         email = txtEmail.getText().toString().trim();
@@ -141,14 +119,52 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         Log.d("login", "response login " + response.toString());
-                    //    BaseApplication.getInstance().startLoader(LoginActivity.this);
-                        if(response.toString().contains("0")){
+
+                        try {
+                            JSONObject jObj = new JSONObject(response);
+                            boolean error = jObj.getBoolean("error");
+
+                            // Check for error node in json
+                            if (!error) {
+                                // user successfully logged in
+                                // Create login session
+                                JSONObject user = jObj.getJSONObject("user");
+                                String name = user.getString("name");
+                                String email = user.getString("email");
+                                String imgProfil = user.getString("imgProfile");
+
+                                SharedPreferences sharedPreferences = LoginActivity.this.
+                                        getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putBoolean("isLogin", true);
+                                editor.putString(KEY_EMAIL,email);
+                                editor.putString(KEY_NAME,name);
+                       //         editor.putString(KEY_IMGPROFIL, imgProfil);
+                                editor.commit();
+
+                                // Launch main activity
+                                Intent intent = new Intent(LoginActivity.this,
+                                        MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                // Error in login. Get the error message
+                                String errorMsg = jObj.getString("error_msg");
+                                Toast.makeText(getApplicationContext(),
+                                        errorMsg, Toast.LENGTH_LONG).show();
+                            }
+                        } catch (JSONException e) {
+                            // JSON error
+                            e.printStackTrace();
+                            Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+
+/*                        if(response.toString().contains("0")){
 
                             Toast.makeText(LoginActivity.this,
                                     "Invalid username or password", Toast.LENGTH_LONG)
                                     .show();
                         }else{
-                    //        BaseApplication.getInstance().stopLoader();
                             SharedPreferences sharedPreferences = LoginActivity.this.
                                     getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -159,7 +175,7 @@ public class LoginActivity extends AppCompatActivity {
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.putExtra(KEY_EMAIL, email);
                             startActivity(intent);
-                        }
+                        }*/
                     }
                 },
                 new Response.ErrorListener() {

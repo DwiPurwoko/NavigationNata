@@ -1,8 +1,8 @@
 package com.example.administrator.navigationnata.view;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 
@@ -20,6 +20,11 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Forgot Password");
+
         btnForgotPassword = (Button) findViewById(R.id.btnForgotPassword);
 
         btnForgotPassword.setOnClickListener(new View.OnClickListener() {
@@ -28,13 +33,5 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
             }
         });
-    }
-    @Override
-    public void onBackPressed()
-    {
-        // code here to show dialog
-        super.onBackPressed();  // optional depending on your needs
-        Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
-        startActivity(intent);
     }
 }
